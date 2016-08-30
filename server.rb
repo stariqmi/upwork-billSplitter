@@ -139,13 +139,33 @@ delete '/housemates/:id' do
   end
 end
 
-# Sample for charging a credit card
-# Stripe::Charge.create(
-#   :amount => 2000,
-#   :currency => "usd",
-#   :source => "tok_18l6pjDNCx3NIn0idupzSqKr", # obtained with Stripe.js
-#   :description => "Charge for daniel.jones@example.com"
-# )
+# Charge a single housemate
+put '/charge' do
+  # Charge a housemate
+
+  content_type :json
+
+  # Get the bill by id
+  bill = document_by_id(:bills, @request_payload["bill_id"])
+
+  # Get the housemates and the cc token
+  housemate = document_by_id(:housemates, @request_payload["housemate_id"])
+
+  # Calculate the housemates share
+  share = bill["amount"] / bill["housemates"].length
+  cc_token = housemate["cc_stripe_token"]
+
+  begin
+    Stripe::Charge.create(
+      :amount => share,
+      :currency => "usd",
+      :source => cc_token,
+      :description => bill["description"]
+    )
+  rescue Exception => e
+    {:success => false, :error => e.message}
+  end
+end
 
 get '/bills/:id' do
     # Get a bill
@@ -166,7 +186,7 @@ post '/bills' do
   content_type :json
   bill = {
     :amount => @request_payload["amount"],
-    :paid   => false,
+    :description => @request_payload["description"],
     :housemates => {
       # housemate_id => true/false
     }
