@@ -25,10 +25,10 @@ helpers do
     def document_by_id(collection,id)
         id = object_id(id) if String === id
         if id.nil?
-            {}.to_json
+            nil
         else
             document = settings.db[collection].find(:_id => id).to_a.first
-            (document || {}).to_json
+            (document || nil)
         end
     end
 end
@@ -47,7 +47,7 @@ end
 get '/housemates/:id' do
     # Get a housemate
     content_type :json
-    document_by_id(:housemates, params[:id])
+    {:success => true, :housemate => document_by_id(:housemates, params[:id])}.to_json
 end
 
 get '/housemates' do
@@ -84,7 +84,8 @@ post '/housemates' do
 
       # Save above record to DB
       result = settings.db[:housemates].insert_one record
-      settings.db[:housemates].find(:_id => result.inserted_id).to_a.first.to_json
+      inserted_record = settings.db[:housemates].find(:_id => result.inserted_id).to_a.first
+      {:success => true, :housemate => inserted_record}.to_json
     rescue Exception => e
       {:success => false, :error => e.message}.to_json
     end
@@ -96,7 +97,7 @@ put '/housemates/:id/info' do
     id = object_id(params[:id])
     settings.db[:housemates].find(:_id => id).
       find_one_and_update('$set' => @request_payload)
-    document_by_id(:housemates, id)
+    {:success => true, :housemate => document_by_id(:housemates, id)}.to_json
 end
 
 put '/housemates/:id/cc' do
@@ -118,7 +119,7 @@ put '/housemates/:id/cc' do
     # Save the updated token to DB
     settings.db[:housemates].find(:_id => params[:id]).
       find_one_and_update('$set' => {:cc_stripe_token => token["id"]})
-    document_by_id(:housemates, params[:id])
+    {:success => true, :housemate => document_by_id(:housemates, params[:id])}.to_json
   rescue Exception => e
     {:success => false, :error => e.message}.to_json
   end
@@ -146,29 +147,51 @@ end
 #   :description => "Charge for daniel.jones@example.com"
 # )
 
-# get '/bill/:id' do
-#     # Get a bill
-#     "Hello World"
-# end
-#
-# get '/bills' do
-#     # Get all bills
-#     "Hello World"
-# end
-#
-# post '/bill' do
-#     # Create a new bill
-#     "Hello World"
-# end
-#
-# update '/bill/:id' do
-#     # Update an existing bill
-#     "Hello World"
-# end
-#
-# put '/bill/:id/split' do
-#     # Split an existing bill
-#     "Hello World"
-# end
-#
-#
+get '/bills/:id' do
+    # Get a bill
+    content_type :json
+
+    {:success => true, :bill => document_by_id(:bills, params[:id])}.to_json
+end
+
+get '/bills' do
+    # Get all bills
+    content_type :json
+
+    {:success => true, bills: settings.db[:bills].find.to_a}.to_json
+end
+
+post '/bills' do
+  # Create a new bill
+  content_type :json
+  bill = {
+    :amount => @request_payload["amount"],
+    :paid   => false,
+    :housemates => {
+      # housemate_id => true/false
+    }
+  }
+
+  settings.db[:housemates].find.each do |housemate|
+    bill[:housemates][housemate[:_id].to_s] = false
+  end
+
+  result = settings.db[:bills].insert_one bill
+  inserted_record = settings.db[:bills].find(:_id => result.inserted_id).to_a.first
+
+  {:success => true, :bill => inserted_record}.to_json
+end
+
+delete '/bills/:id' do
+  # Deleting a bill
+  content_type :json
+
+  id = object_id(params[:id])
+  documents = settings.db[:bills].find(:_id => id)
+  if !documents.to_a.first.nil?
+    documents.find_one_and_delete
+    {:success => true}.to_json
+  else
+    {:success => false}.to_json
+  end
+end
