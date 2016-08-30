@@ -1,20 +1,41 @@
+GIT
+  remote: https://github.com/stripe/stripe-ruby
+  revision: 5573cc73fc9d3122e8110154e7bc359cb91050a6
+  specs:
+    stripe (1.51.0)
+      rest-client (>= 1.4, < 3.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
-    bson (1.12.5)
-    bson_ext (1.12.5)
-      bson (~> 1.12.5)
+    bson (4.1.1)
+    bson_ext (1.5.1)
+    domain_name (0.5.20160615)
+      unf (>= 0.0.5, < 1.0.0)
+    http-cookie (1.0.2)
+      domain_name (~> 0.5)
     json (2.0.2)
-    mongo (1.12.5)
-      bson (= 1.12.5)
+    mime-types (3.1)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2016.0521)
+    mongo (2.3.0)
+      bson (~> 4.1)
+    netrc (0.11.0)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
+    rest-client (2.0.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     sinatra (1.4.7)
       rack (~> 1.5)
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
     tilt (2.0.5)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.7.2)
 
 PLATFORMS
   ruby
@@ -22,8 +43,9 @@ PLATFORMS
 DEPENDENCIES
   bson_ext
   json
-  mongo
+  mongo (~> 2.2)
   sinatra
+  stripe!
 
 BUNDLED WITH
    1.12.5

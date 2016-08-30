@@ -1,10 +1,14 @@
 require "sinatra"
 require "mongo"
 require "json/ext"
+require "stripe"
 
 configure do
     db = Mongo::Client.new('mongodb://root:root@ds161245.mlab.com:61245/bill_splitter_dev')
     set(:db, db)
+
+    stripeKey = "sk_test_blOpKO4rdEiiqxB3MxsNjb9p"
+    Stripe.api_key = stripeKey
 end
 
 helpers do
@@ -53,8 +57,35 @@ end
 post '/housemates' do
     # Create new housemates
     content_type :json
-    result = settings.db[:housemates].insert_one @request_payload
-    settings.db[:housemates].find(:_id => result.inserted_id).to_a.first.to_json
+
+    puts @request_payload
+
+    # Get CC information
+    card = @request_payload["card"]
+
+    begin
+      token = Stripe::Token.create(
+        :card => {
+          :number     => card["number"],
+          :exp_month  => card["exp_month"],
+          :exp_year   => card["exp_year"],
+          :cvc        => card["cvc"]
+        }
+      )
+
+      # Create record to save to DB with the token.id
+      record = {
+        :name => @request_payload["name"],
+        :email => @request_payload["email"],
+        :cc_stripe_token => token["id"]
+      }
+
+      # Save above record to DB
+      result = settings.db[:housemates].insert_one record
+      settings.db[:housemates].find(:_id => result.inserted_id).to_a.first.to_json
+    rescue Exception => e
+      {:error => e.message}.to_json
+    end
 end
 
 put '/housemates/:id' do
@@ -67,25 +98,25 @@ end
 #     # Get a bill
 #     "Hello World"
 # end
-# 
+#
 # get '/bills' do
 #     # Get all bills
 #     "Hello World"
 # end
-# 
+#
 # post '/bill' do
 #     # Create a new bill
 #     "Hello World"
 # end
-# 
+#
 # update '/bill/:id' do
 #     # Update an existing bill
 #     "Hello World"
 # end
-# 
+#
 # put '/bill/:id/split' do
-#     # Split an existing bill 
+#     # Split an existing bill
 #     "Hello World"
 # end
-# 
-# 
+#
+#
