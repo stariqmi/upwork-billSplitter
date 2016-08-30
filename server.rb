@@ -53,7 +53,7 @@ end
 get '/housemates' do
     # Get housemates
     content_type :json
-    settings.db[:housemates].find.to_a.to_json
+    {:success => true, :housemate => settings.db[:housemates].find.to_a}.to_json
 end
 
 post '/housemates' do
@@ -100,9 +100,28 @@ put '/housemates/:id/info' do
 end
 
 put '/housemates/:id/cc' do
-  # Update an existing housemate cc
+  # Update a housemate's CC
   content_type :json
-  "Hello"
+
+  puts @request_payload
+
+  begin
+    token = Stripe::Token.create(
+      :card => {
+        :number     => @request_payload["number"],
+        :exp_month  => @request_payload["exp_month"],
+        :exp_year   => @request_payload["exp_year"],
+        :cvc        => @request_payload["cvc"]
+      }
+    )
+
+    # Save the updated token to DB
+    settings.db[:housemates].find(:_id => params[:id]).
+      find_one_and_update('$set' => {:cc_stripe_token => token["id"]})
+    document_by_id(:housemates, params[:id])
+  rescue Exception => e
+    {:success => false, :error => e.message}.to_json
+  end
 end
 
 delete '/housemates/:id' do
