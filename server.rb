@@ -34,8 +34,10 @@ helpers do
 end
 
 before do
-  request.body.rewind
-  @request_payload = JSON.parse(request.body.read)
+  if request.request_method == 'POST' || request.request_method == 'PUT'
+    request.body.rewind
+    @request_payload = JSON.parse(request.body.read)
+  end
 end
 
 get '/' do
@@ -45,13 +47,13 @@ end
 get '/housemates/:id' do
     # Get a housemate
     content_type :json
-    "Hello World"
+    document_by_id(:housemates, params[:id])
 end
 
 get '/housemates' do
     # Get housemates
     content_type :json
-    "Hello World"
+    settings.db[:housemates].find.to_a.to_json
 end
 
 post '/housemates' do
@@ -84,15 +86,46 @@ post '/housemates' do
       result = settings.db[:housemates].insert_one record
       settings.db[:housemates].find(:_id => result.inserted_id).to_a.first.to_json
     rescue Exception => e
-      {:error => e.message}.to_json
+      {:success => false, :error => e.message}.to_json
     end
 end
 
-put '/housemates/:id' do
-    # Update an existing housemate
+put '/housemates/:id/info' do
+    # Update an existing housemate information
     content_type :json
-    "Hello World"
+    id = object_id(params[:id])
+    settings.db[:housemates].find(:_id => id).
+      find_one_and_update('$set' => @request_payload)
+    document_by_id(:housemates, id)
 end
+
+put '/housemates/:id/cc' do
+  # Update an existing housemate cc
+  content_type :json
+  "Hello"
+end
+
+delete '/housemates/:id' do
+  # Deleting a housemate
+  content_type :json
+
+  id = object_id(params[:id])
+  documents = settings.db[:housemates].find(:_id => id)
+  if !documents.to_a.first.nil?
+    documents.find_one_and_delete
+    {:success => true}.to_json
+  else
+    {:success => false}.to_json
+  end
+end
+
+# Sample for charging a credit card
+# Stripe::Charge.create(
+#   :amount => 2000,
+#   :currency => "usd",
+#   :source => "tok_18l6pjDNCx3NIn0idupzSqKr", # obtained with Stripe.js
+#   :description => "Charge for daniel.jones@example.com"
+# )
 
 # get '/bill/:id' do
 #     # Get a bill
