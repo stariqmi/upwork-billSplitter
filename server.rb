@@ -66,20 +66,23 @@ post '/housemates' do
     card = @request_payload["card"]
 
     begin
+
+      card = {
+        :number     => card["number"],
+        :exp_month  => card["exp_month"],
+        :exp_year   => card["exp_year"],
+        :cvc        => card["cvc"]
+      }
+
       token = Stripe::Token.create(
-        :card => {
-          :number     => card["number"],
-          :exp_month  => card["exp_month"],
-          :exp_year   => card["exp_year"],
-          :cvc        => card["cvc"]
-        }
+        :card => card
       )
 
       # Create record to save to DB with the token.id
       record = {
         :name => @request_payload["name"],
         :email => @request_payload["email"],
-        :cc_stripe_token => token["id"]
+        :card => card
       }
 
       # Save above record to DB
@@ -107,18 +110,21 @@ put '/housemates/:id/cc' do
   puts @request_payload
 
   begin
+
+    card = {
+      :number     => @request_payload["number"],
+      :exp_month  => @request_payload["exp_month"],
+      :exp_year   => @request_payload["exp_year"],
+      :cvc        => @request_payload["cvc"]
+    }
+
     token = Stripe::Token.create(
-      :card => {
-        :number     => @request_payload["number"],
-        :exp_month  => @request_payload["exp_month"],
-        :exp_year   => @request_payload["exp_year"],
-        :cvc        => @request_payload["cvc"]
-      }
+      :card => card
     )
 
     # Save the updated token to DB
     settings.db[:housemates].find(:_id => params[:id]).
-      find_one_and_update('$set' => {:cc_stripe_token => token["id"]})
+      find_one_and_update('$set' => {:card => card})
     {:success => true, :housemate => document_by_id(:housemates, params[:id])}.to_json
   rescue Exception => e
     {:success => false, :error => e.message}.to_json
@@ -146,24 +152,47 @@ put '/charge' do
   content_type :json
 
   # Get the bill by id
-  bill = document_by_id(:bills, @request_payload["bill_id"])
+  bill_id = @request_payload["bill_id"]
+  bill = document_by_id(:bills, bill_id)
 
   # Get the housemates and the cc token
-  housemate = document_by_id(:housemates, @request_payload["housemate_id"])
+  housemate_id = @request_payload["housemate_id"]
+  housemate = document_by_id(:housemates, housemate_id)
 
   # Calculate the housemates share
   share = bill["amount"] / bill["housemates"].length
-  cc_token = housemate["cc_stripe_token"]
 
   begin
-    Stripe::Charge.create(
-      :amount => share,
+
+    source = housemate["card"]
+    source["object"] = "card"
+
+    charge = {
+      :amount => share * 100, # Convert $s to cents
       :currency => "usd",
-      :source => cc_token,
+      :source => source,
       :description => bill["description"]
-    )
+    }
+
+    striped_charge = Stripe::Charge.create(charge)
+
+    if striped_charge["failure_code"].nil?
+
+      # Update the bill
+      bill_housemates = bill["housemates"]
+      bill_housemates[housemate_id] = striped_charge["id"]
+      settings.db[:bills].find(:_id => object_id(bill_id)).
+        find_one_and_update('$set' => {'housemates': bill_housemates})
+
+      {:success => true, :bill => document_by_id(:bills, bill_id)}.to_json
+    else
+      err_code = striped_charge["failure_code"]
+      err_msg = striped_charge["failure_message"]
+      {:success => false, :error => "Stripe charge failed with #{err_code}:#{err_msg}"}
+    end
+
   rescue Exception => e
-    {:success => false, :error => e.message}
+    {:success => false, :error => e.message}.to_json
   end
 end
 
