@@ -44,6 +44,7 @@ class HousemateEdit extends Component {
       if (!res.body.success) {
         alert('Error: ' + res.body.error)
       }
+      else alert('Success: ' + res.body.success)
     })
   }
 
