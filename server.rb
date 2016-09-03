@@ -1,14 +1,18 @@
 require "sinatra"
+require 'sinatra/cross_origin'
 require "mongo"
 require "json/ext"
 require "stripe"
 
 configure do
-    db = Mongo::Client.new('mongodb://root:root@ds161245.mlab.com:61245/bill_splitter_dev')
-    set(:db, db)
+  # Enable CORS
+  enable :cross_origin
 
-    stripeKey = "sk_test_blOpKO4rdEiiqxB3MxsNjb9p"
-    Stripe.api_key = stripeKey
+  db = Mongo::Client.new('mongodb://root:root@ds161245.mlab.com:61245/bill_splitter_dev')
+  set(:db, db)
+
+  stripeKey = "sk_test_blOpKO4rdEiiqxB3MxsNjb9p"
+  Stripe.api_key = stripeKey
 end
 
 helpers do
@@ -40,8 +44,18 @@ before do
   end
 end
 
+
+options "*" do
+  response.headers["Access-Control-Allow-Methods"] = "HEAD,GET,PUT,DELETE,OPTIONS"
+
+  # Needed for AngularJS
+  response.headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
+
+  200
+end
+
 get '/' do
-    "Hello World"
+    send_file 'ui/app/index.html'
 end
 
 get '/housemates/:id' do
@@ -53,7 +67,7 @@ end
 get '/housemates' do
     # Get housemates
     content_type :json
-    {:success => true, :housemate => settings.db[:housemates].find.to_a}.to_json
+    {:success => true, :housemates => settings.db[:housemates].find.to_a}.to_json
 end
 
 post '/housemates' do
@@ -123,7 +137,7 @@ put '/housemates/:id/cc' do
     )
 
     # Save the updated token to DB
-    settings.db[:housemates].find(:_id => params[:id]).
+    settings.db[:housemates].find(:_id => object_id(params[:id])).
       find_one_and_update('$set' => {:card => card})
     {:success => true, :housemate => document_by_id(:housemates, params[:id])}.to_json
   rescue Exception => e
@@ -137,7 +151,7 @@ delete '/housemates/:id' do
 
   id = object_id(params[:id])
   documents = settings.db[:housemates].find(:_id => id)
-  if !documents.to_a.first.nil?
+  if !documents.nil?
     documents.find_one_and_delete
     {:success => true}.to_json
   else

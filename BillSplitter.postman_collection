@@ -5,6 +5,26 @@
 	"order": [],
 	"folders": [
 		{
+			"id": "b2c2408b-c1a7-5bc2-68b3-b7b8bf0bfdbe",
+			"name": "Bills",
+			"description": "Bills",
+			"order": [
+				"26962c6c-d63c-bcac-f976-173896b93646",
+				"b2582347-46fe-01d5-e99a-1698a53536f5",
+				"67ef15f8-3842-0f25-be3c-ba36c7178920"
+			],
+			"owner": "121688"
+		},
+		{
+			"id": "91b0b3a5-db56-5035-2a13-0ea51a959928",
+			"name": "Charge",
+			"description": "",
+			"order": [
+				"bb70a362-09ff-75bb-ebfa-9924dcf61b26"
+			],
+			"owner": "121688"
+		},
+		{
 			"id": "c6c24304-f2f0-ea00-b59a-43c37e96a951",
 			"name": "Housemates",
 			"description": "",
@@ -25,6 +45,25 @@
 	"published": false,
 	"requests": [
 		{
+			"id": "26962c6c-d63c-bcac-f976-173896b93646",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost:4567/bills",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1472709623187,
+			"name": "http://localhost:4567/bills",
+			"description": "Create a bill",
+			"collectionId": "41eada2b-37a2-9a09-1ff8-32f92032c6d3",
+			"responses": [],
+			"rawModeData": "{\n    \"amount\": 30,\n    \"description\": \"Test bill 2\"\n}"
+		},
+		{
 			"id": "55ae2998-1d80-9aaa-7f10-816e156d5cd9",
 			"headers": "",
 			"url": "http://localhost:4567/housemates/57c523d0586bbbc26f55adc3",
@@ -44,6 +83,27 @@
 			"currentHelper": "normal",
 			"helperAttributes": {},
 			"folder": "c6c24304-f2f0-ea00-b59a-43c37e96a951"
+		},
+		{
+			"id": "67ef15f8-3842-0f25-be3c-ba36c7178920",
+			"headers": "",
+			"url": "http://localhost:4567/bills/57c5dcc3586bbbc745340b77",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "41eada2b-37a2-9a09-1ff8-32f92032c6d3",
+			"data": null,
+			"dataMode": "params",
+			"name": "http://localhost:4567/bills/57c5dcc3586bbbc745340b77",
+			"description": "Get a bill by it's ID",
+			"descriptionFormat": "html",
+			"time": 1472585762375,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "b2c2408b-c1a7-5bc2-68b3-b7b8bf0bfdbe"
 		},
 		{
 			"id": "927995ee-4bbc-183e-ad22-7f77d6938cc0",
@@ -68,6 +128,47 @@
 			"rawModeData": "{\n    \"number\": 4012888888881881,\n    \"exp_year\": 2022,\n    \"exp_month\": 11,\n    \"cvc\": 124\n}"
 		},
 		{
+			"id": "b2582347-46fe-01d5-e99a-1698a53536f5",
+			"headers": "",
+			"url": "http://localhost:4567/bills",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "41eada2b-37a2-9a09-1ff8-32f92032c6d3",
+			"data": null,
+			"dataMode": "params",
+			"name": "http://localhost:4567/bills",
+			"description": "Get all bills",
+			"descriptionFormat": "html",
+			"time": 1472585259165,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "b2c2408b-c1a7-5bc2-68b3-b7b8bf0bfdbe"
+		},
+		{
+			"id": "bb70a362-09ff-75bb-ebfa-9924dcf61b26",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://localhost:4567/charge",
+			"preRequestScript": null,
+			"pathVariables": {},
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1472709659098,
+			"name": "http://localhost:4567/charge",
+			"description": "Charge a housemate a part of the bill",
+			"collectionId": "41eada2b-37a2-9a09-1ff8-32f92032c6d3",
+			"responses": [],
+			"rawModeData": "{\n    \"bill_id\": \"57c7b664586bbbd09620dd7d\",\n    \"housemate_id\": \"57c7b601586bbbd09620dd7b\"\n}"
+		},
+		{
 			"id": "c25d0419-9ade-d1ed-2d7a-8cdff185efe1",
 			"headers": "Content-Type: application/json\n",
 			"url": "http://localhost:4567/housemates",
@@ -79,33 +180,31 @@
 			"tests": null,
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1472537397174,
+			"time": 1472706058845,
 			"name": "http://localhost:4567/housemates",
 			"description": "Create a housemate with their CC information.",
 			"collectionId": "41eada2b-37a2-9a09-1ff8-32f92032c6d3",
 			"responses": [],
-			"rawModeData": "{\n    \"name\":\"Salman Tariq\",\n    \"email\": \"stariqmi@gmail.com\",\n    \"card\": {\n        \"number\": 4242424242424242,\n        \"exp_month\": 8,\n        \"exp_year\": 2020,\n        \"cvc\": 123\n    }\n}"
+			"rawModeData": "{\n    \"name\":\"Hammad Tariq\",\n    \"email\": \"htariqmi@gmail.com\",\n    \"card\": {\n        \"number\": 4242424242424242,\n        \"exp_month\": 8,\n        \"exp_year\": 2020,\n        \"cvc\": 123\n    }\n}"
 		},
 		{
 			"id": "d0ec7081-c01d-02a0-a442-8fcdf73cbe87",
 			"headers": "",
-			"url": "http://localhost:4567/housemates/57c523d0586bbbc26f55adc3",
-			"pathVariables": {},
+			"url": "http://localhost:4567/housemates/57c7aa48586bbbcfbd61d181",
 			"preRequestScript": null,
+			"pathVariables": {},
 			"method": "GET",
-			"collectionId": "41eada2b-37a2-9a09-1ff8-32f92032c6d3",
 			"data": null,
 			"dataMode": "params",
-			"name": "http://localhost:4567/housemates/57c523d0586bbbc26f55adc3",
-			"description": "Get a housemate by it's ID",
-			"descriptionFormat": "html",
-			"time": 1472538554003,
 			"version": 2,
-			"responses": [],
 			"tests": null,
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"folder": "c6c24304-f2f0-ea00-b59a-43c37e96a951"
+			"time": 1472709600015,
+			"name": "http://localhost:4567/housemates/57c523d0586bbbc26f55adc3",
+			"description": "Get a housemate by it's ID",
+			"collectionId": "41eada2b-37a2-9a09-1ff8-32f92032c6d3",
+			"responses": []
 		},
 		{
 			"id": "ec97c78d-a984-0c4e-9f28-25f1fe959311",

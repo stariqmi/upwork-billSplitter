@@ -5,3 +5,4 @@ gem 'json'
 gem 'mongo', '~> 2.2'
 gem 'bson_ext'
 gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
+gem "sinatra-cross_origin", "~> 0.3.1"
