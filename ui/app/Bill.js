@@ -35,9 +35,15 @@ class Bill extends Component {
       }
 
       Promise.all(promises).then((values) => {
-        HTTP.get(BASE_URL + '/bills/' + this.state.bill._id.$oid)
-          .end((err, res) => {
-            this.setState({bill: res.body.bill})
+        HTTP.put(BASE_URL + '/bills/' + this.state.bill._id.$oid)
+          .send({split: true})
+          .then(() => {
+            // Set status of bill to split
+            HTTP.get(BASE_URL + '/bills/' + this.state.bill._id.$oid)
+              .end((err, res) => {
+                this.setState({bill: res.body.bill})
+              })
+
           })
       })
     }
