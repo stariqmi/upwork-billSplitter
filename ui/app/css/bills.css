@@ -1,0 +1,57 @@
+div.bills {
+  margin-top: 20px;
+}
+
+div.bill {
+  border: 2px solid black;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  padding: 0px;
+  overflow: hidden;
+}
+
+div.bill-details {
+  padding: 5px;
+}
+
+div.bill-btn {
+  height: 50px;
+  text-align: center;
+  line-height: 50px;
+  font-size: 20px;
+  border-top: 2px solid black;
+}
+
+div.bill-btn:hover {
+  cursor: pointer;
+}
+
+div.bill-split-button {
+  background-color: #80b3ff;
+  border-right: 1px solid black;
+}
+
+div.bill-split-button:active {
+  background-color: #4d94ff;
+}
+
+div.bill-delete-button {
+  background-color: #ff704d;
+  border-left: 1px solid black;
+}
+
+div.bill-delete-button:active {
+  background-color: #ff471a;
+}
+
+div.bill-split-complete {
+  text-decoration: line-through;
+}
+
+div.bill-split-complete:hover {
+  cursor: auto;
+}
+
+div.bill-split-complete:active {
+  background-color: #80b3ff;
+}

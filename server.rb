@@ -194,7 +194,9 @@ put '/charge' do
 
       # Update the bill
       bill_housemates = bill["housemates"]
-      bill_housemates[housemate_id] = striped_charge["id"]
+      bill_housemates[housemate_id][:charge_id] = striped_charge["id"]
+      bill_housemates[housemate_id][:paid] = true
+
       settings.db[:bills].find(:_id => object_id(bill_id)).
         find_one_and_update('$set' => {'housemates': bill_housemates})
 
@@ -224,6 +226,15 @@ get '/bills' do
     {:success => true, bills: settings.db[:bills].find.to_a}.to_json
 end
 
+put '/bills/:id' do
+    # Update an existing bill
+    content_type :json
+    id = object_id(params[:id])
+    settings.db[:bills].find(:_id => id).
+      find_one_and_update('$set' => @request_payload)
+    {:success => true, :bills => document_by_id(:bills, id)}.to_json
+end
+
 post '/bills' do
   # Create a new bill
   content_type :json
@@ -232,11 +243,12 @@ post '/bills' do
     :description => @request_payload["description"],
     :housemates => {
       # housemate_id => true/false
-    }
+    },
+    :created_at => Time.now.to_i
   }
 
   settings.db[:housemates].find.each do |housemate|
-    bill[:housemates][housemate[:_id].to_s] = false
+    bill[:housemates][housemate[:_id].to_s] = {:name => housemate["name"], :paid => false}
   end
 
   result = settings.db[:bills].insert_one bill
