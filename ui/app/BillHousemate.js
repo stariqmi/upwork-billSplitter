@@ -5,7 +5,7 @@ class BillHousemate extends Component {
     return (
       <li>
         <div>
-          {this.props.data.name} - Paid: {this.props.data.paid ? this.props.data.charge_id : 'Not Paid'}
+          {this.props.data.name} - {this.props.data.paid ? /*'Charge ID: ' + /this.props.data.charge_id*/'Paid' : 'Not Paid'}
         </div>
       </li>
     )

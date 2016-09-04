@@ -29,7 +29,6 @@ class BillCreate extends Component {
       .end((err, res) => {
         if (!res.body.success) alert('Error: ' + res.body.error)
         else {
-          alert('Success: ' + res.body.success)
           this.props.onCreate(res.body.bill)
         }
       })

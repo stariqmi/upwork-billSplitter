@@ -198,7 +198,7 @@ put '/charge' do
       bill_housemates[housemate_id][:paid] = true
 
       settings.db[:bills].find(:_id => object_id(bill_id)).
-        find_one_and_update('$set' => {'housemates': bill_housemates})
+        find_one_and_update('$set' => {"housemates.#{housemate_id}": bill_housemates[housemate_id]})
 
       {:success => true, :bill => document_by_id(:bills, bill_id)}.to_json
     else

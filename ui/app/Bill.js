@@ -23,16 +23,26 @@ class Bill extends Component {
       // After all charges have been split
       let housemates = this.state.bill.housemates
       let bill_id = this.state.bill._id.$oid
+
+      let promises = []
       for (let key in housemates) {
         let housemate_id = key
 
-        HTTP.put(BASE_URL + '/charge')
+        let promise = HTTP.put(BASE_URL + '/charge')
           .send({bill_id, housemate_id})
-          .end((err, res) => {
 
-          })
+        promises.push(promise)
       }
+
+      Promise.all(promises).then((values) => {
+        HTTP.get(BASE_URL + '/bills/' + this.state.bill._id.$oid)
+          .end((err, res) => {
+            this.setState({bill: res.body.bill})
+          })
+      })
     }
+
+
   }
 
   onDeleteClick() {
